@@ -1,0 +1,15 @@
+{
+  "name": "job-portal-app",
+  "version": "1.0.0",
+  "description": "Full-Stack Job Portal Web Application",
+  "scripts": {
+    "server": "npm --prefix server start",
+    "client": "npm --prefix client run dev",
+    "build": "npm --prefix client run build",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "start": "node server/server.js"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

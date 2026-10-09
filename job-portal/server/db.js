@@ -1,0 +1,550 @@
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const DATA_DIR = path.join(__dirname, 'data');
+const DB_FILE = path.join(DATA_DIR, 'db.json');
+
+// Initial seed data with realistic companies and positions
+const initialData = {
+  users: [
+    {
+      id: "user-cand-1",
+      name: "Alex Morgan",
+      email: "alex.morgan@example.com",
+      role: "candidate",
+      title: "Senior Full Stack Engineer",
+      avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&h=200&fit=crop&crop=faces",
+      bio: "Passionate engineer with 6+ years building performant web apps in React, Node.js, and TypeScript. Open-source contributor and UI/UX enthusiast.",
+      skills: ["React", "TypeScript", "Node.js", "Next.js", "Tailwind CSS", "PostgreSQL", "Docker", "GraphQL"],
+      location: "San Francisco, CA",
+      phone: "+1 (555) 382-9102",
+      portfolio: "https://alexmorgan.dev",
+      github: "https://github.com/alexmorgan-dev",
+      linkedin: "https://linkedin.com/in/alexmorgan"
+    },
+    {
+      id: "user-cand-2",
+      name: "Priya Sharma",
+      email: "priya.sharma@example.com",
+      role: "candidate",
+      title: "Lead Product Designer",
+      avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&h=200&fit=crop&crop=faces",
+      bio: "Product designer focused on design systems, human-centered interactions, and B2B SaaS workflows. Former design lead at FinTech startups.",
+      skills: ["Figma", "UI/UX Design", "Design Systems", "Prototyping", "User Research", "Wireframing"],
+      location: "New York, NY",
+      phone: "+1 (555) 749-2041",
+      portfolio: "https://priyadesigns.io"
+    },
+    {
+      id: "user-emp-1",
+      name: "Sarah Jenkins",
+      email: "sarah@stripe.com",
+      role: "employer",
+      title: "Head of Technical Recruiting",
+      companyName: "Stripe",
+      companyLogo: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=150&h=150&fit=crop",
+      companyWebsite: "https://stripe.com",
+      location: "San Francisco, CA",
+      bio: "Building the economic infrastructure for the internet. Hiring talented software engineers, designers, and managers globally."
+    },
+    {
+      id: "user-emp-2",
+      name: "David Chen",
+      email: "david@linear.app",
+      role: "employer",
+      title: "VP of People & Culture",
+      companyName: "Linear",
+      companyLogo: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=150&h=150&fit=crop",
+      companyWebsite: "https://linear.app",
+      location: "Remote / Global",
+      bio: "Crafting software for modern software teams with unmatched speed and craftsmanship."
+    }
+  ],
+  jobs: [
+    {
+      id: "job-1",
+      title: "Senior Full-Stack Engineer",
+      company: "Stripe",
+      companyLogo: "https://api.dicebear.com/7.x/identicon/svg?seed=Stripe",
+      location: "San Francisco, CA",
+      workplaceType: "Hybrid",
+      jobType: "Full-time",
+      experienceLevel: "Senior",
+      category: "Software Engineering",
+      salaryMin: 165000,
+      salaryMax: 215000,
+      salaryCurrency: "USD",
+      featured: true,
+      postedDate: "2026-10-06T10:00:00.000Z",
+      status: "active",
+      employerId: "user-emp-1",
+      description: "We are seeking a seasoned Senior Full-Stack Engineer to join our Global Payments platform team. You will lead the architecture and implementation of scalable APIs, resilient checkout workflows, and developer-first dashboards that process billions in transactions daily.",
+      requirements: [
+        "5+ years building distributed web applications with Node.js, Go, or Ruby and React/TypeScript",
+        "Deep understanding of relational databases (PostgreSQL/MySQL) and caching strategies (Redis)",
+        "Proven experience designing and maintaining high-reliability REST & GraphQL APIs",
+        "Strong empathy for developer experience and clean API design",
+        "Experience in high-availability, high-security fintech environments is a plus"
+      ],
+      responsibilities: [
+        "Architect and implement core payment processing services and developer dashboards",
+        "Partner closely with Product, Security, and Infrastructure teams to deliver critical product milestones",
+        "Mentor mid-level engineers and conduct comprehensive technical code reviews",
+        "Participate in on-call rotation and champion system resilience and automated observability"
+      ],
+      benefits: [
+        "Comprehensive health, dental, and vision insurance with 100% premium coverage",
+        "$5,000 annual continuous learning and development budget",
+        "Competitive equity package (RSUs) with flexible 401(k) matching",
+        "Flexible hybrid work schedule and $1,500 home office setup stipend",
+        "Generous parental leave and unlimited paid time off (PTO)"
+      ],
+      applicantsCount: 3
+    },
+    {
+      id: "job-2",
+      title: "Staff Product Designer",
+      company: "Linear",
+      companyLogo: "https://api.dicebear.com/7.x/identicon/svg?seed=Linear",
+      location: "Remote",
+      workplaceType: "Remote",
+      jobType: "Full-time",
+      experienceLevel: "Senior",
+      category: "Design",
+      salaryMin: 155000,
+      salaryMax: 195000,
+      salaryCurrency: "USD",
+      featured: true,
+      postedDate: "2026-10-07T14:30:00.000Z",
+      status: "active",
+      employerId: "user-emp-2",
+      description: "Linear is known for setting the gold standard in modern software design and desktop-grade web UX. We are looking for a Staff Product Designer who obsesses over micro-interactions, typography, lightning keyboard navigation, and seamless project workflows.",
+      requirements: [
+        "6+ years designing complex desktop or B2B SaaS web applications",
+        "Uncompromising attention to detail in visual design, motion, and interaction patterns",
+        "Mastery of Figma, component design systems, and rapid prototyping",
+        "Ability to write or read HTML/CSS/Tailwind to partner seamlessly with front-end engineers",
+        "Portfolio showcasing shipped software with high craftsmanship"
+      ],
+      responsibilities: [
+        "Design foundational product workflows from early concepts through high-fidelity prototypes and final polish",
+        "Maintain and evolve our design system with novel UI components and interaction principles",
+        "Collaborate daily with our founders and engineering team in an asynchronous, feedback-driven environment",
+        "Conduct customer research sessions with developers and engineering leaders"
+      ],
+      benefits: [
+        "Work anywhere in the world with flexible asynchronous hours",
+        "Top-of-market base salary plus meaningful company equity",
+        "Full equipment setup: Latest MacBook Pro, 4K monitor, and ergonomic chair stipend",
+        "Annual team offsites in premier global destinations",
+        "Comprehensive health benefits and wellness allowance"
+      ],
+      applicantsCount: 2
+    },
+    {
+      id: "job-3",
+      title: "Senior AI / Machine Learning Engineer",
+      company: "Anthropic Partner AI",
+      companyLogo: "https://api.dicebear.com/7.x/identicon/svg?seed=AnthropicAI",
+      location: "New York, NY",
+      workplaceType: "Hybrid",
+      jobType: "Full-time",
+      experienceLevel: "Senior",
+      category: "Data Science",
+      salaryMin: 180000,
+      salaryMax: 240000,
+      salaryCurrency: "USD",
+      featured: true,
+      postedDate: "2026-10-08T09:15:00.000Z",
+      status: "active",
+      employerId: "user-emp-1",
+      description: "Join our frontier applied AI team delivering enterprise agentic workflows, LLM orchestration, evaluations, and intelligent search systems. You will optimize inference latency, fine-tune domain models, and build robust retrieval-augmented pipelines.",
+      requirements: [
+        "4+ years experience deploying production machine learning pipelines and LLM systems",
+        "Proficiency in Python, PyTorch, LangChain/LlamaIndex, and Vector Databases (Pinecone, Qdrant, pgvector)",
+        "Hands-on experience with prompt optimization, model evaluation harnesses, and synthetic data generation",
+        "Experience optimizing GPU compute workloads and serverless inference endpoints"
+      ],
+      responsibilities: [
+        "Design and scale agentic AI systems that interact with external APIs and internal knowledge graphs",
+        "Build rigorous evaluation benchmarks to measure accuracy, hallucinations, and safety metrics",
+        "Optimize latency and throughput across multi-model inference pipelines",
+        "Collaborate with backend engineers to expose low-latency streaming endpoints"
+      ],
+      benefits: [
+        "Premier Tier 1 medical, vision, and mental healthcare",
+        "Generous GPU compute credit budget for personal experiments and R&D",
+        "Equity grants in high-growth AI venture",
+        "Daily catered gourmet lunches and artisan espresso bar in Manhattan office"
+      ],
+      applicantsCount: 1
+    },
+    {
+      id: "job-4",
+      title: "DevOps & Cloud Infrastructure Lead",
+      company: "Vercel Systems",
+      companyLogo: "https://api.dicebear.com/7.x/identicon/svg?seed=VercelSys",
+      location: "Remote",
+      workplaceType: "Remote",
+      jobType: "Full-time",
+      experienceLevel: "Lead / Director",
+      category: "DevOps & Cloud",
+      salaryMin: 175000,
+      salaryMax: 225000,
+      salaryCurrency: "USD",
+      featured: false,
+      postedDate: "2026-10-05T11:20:00.000Z",
+      status: "active",
+      employerId: "user-emp-2",
+      description: "We are looking for a Cloud Infrastructure Lead to spearhead our Kubernetes clusters, multi-region edge deployments, Terraform modules, and CI/CD automation pipelines across AWS and GCP.",
+      requirements: [
+        "6+ years administering large-scale Kubernetes clusters in multi-cloud production environments",
+        "Infrastructure as Code mastery using Terraform, Terragrunt, or OpenTofu",
+        "Deep expertise with Prometheus, Grafana, OpenTelemetry, and incident management",
+        "Demonstrated track record maintaining 99.99% uptime for consumer-facing systems"
+      ],
+      responsibilities: [
+        "Oversee zero-trust cloud network architecture, IAM policies, and automated compliance",
+        "Streamline developer deployment pipelines with automated rollback and canary testing",
+        "Drive cloud spend optimization and automated autoscaling triggers",
+        "Lead incident response post-mortems and preventative infrastructure hardening"
+      ],
+      benefits: [
+        "100% remote working flexibility worldwide",
+        "Quarterly profit sharing bonus and high-tier equity",
+        "$2,500 annual home-office and hardware upgrade budget",
+        "Premium international health insurance"
+      ],
+      applicantsCount: 0
+    },
+    {
+      id: "job-5",
+      title: "Growth Product Manager",
+      company: "Supabase Labs",
+      companyLogo: "https://api.dicebear.com/7.x/identicon/svg?seed=SupabaseLabs",
+      location: "San Francisco, CA",
+      workplaceType: "Hybrid",
+      jobType: "Full-time",
+      experienceLevel: "Mid Level",
+      category: "Product Management",
+      salaryMin: 135000,
+      salaryMax: 170000,
+      salaryCurrency: "USD",
+      featured: false,
+      postedDate: "2026-10-04T16:00:00.000Z",
+      status: "active",
+      employerId: "user-emp-1",
+      description: "Are you a data-driven Product Manager who loves developer tools? Help us optimize our developer onboarding funnel, activation milestones, self-serve tier upgrades, and enterprise proof-of-concept workflows.",
+      requirements: [
+        "3+ years product management experience in B2B SaaS or developer tools",
+        "Proficiency in SQL, Mixpanel/Amplitude, and statistical hypothesis testing (A/B tests)",
+        "Technical fluency: understanding of databases, authentication, and REST APIs",
+        "Outstanding written communication and product specification clarity"
+      ],
+      responsibilities: [
+        "Define metrics, analyze user funnels, and prioritize growth experiments",
+        "Work directly with engineering and design to run weekly experiment cycles",
+        "Interview developers to identify onboarding friction and activation moments",
+        "Synthesize customer feedback into clear, executable product requirements"
+      ],
+      benefits: [
+        "Generous equity package and competitive base pay",
+        "Flexible hybrid work model (2 days office, 3 days remote)",
+        "Full health, vision, dental, and life coverage",
+        "Yearly company retreat in international hubs"
+      ],
+      applicantsCount: 1
+    },
+    {
+      id: "job-6",
+      title: "Frontend React Engineer",
+      company: "Figma Studio",
+      companyLogo: "https://api.dicebear.com/7.x/identicon/svg?seed=FigmaStudio",
+      location: "New York, NY",
+      workplaceType: "On-site",
+      jobType: "Full-time",
+      experienceLevel: "Mid Level",
+      category: "Software Engineering",
+      salaryMin: 140000,
+      salaryMax: 175000,
+      salaryCurrency: "USD",
+      featured: true,
+      postedDate: "2026-10-07T12:00:00.000Z",
+      status: "active",
+      employerId: "user-emp-1",
+      description: "Join our canvas rendering and creative tooling team! We are looking for an ambitious Frontend Engineer with deep mastery of React, WebGL/Canvas, TypeScript, and state management architectures.",
+      requirements: [
+        "3+ years building high-performance modern web applications using React and TypeScript",
+        "Solid grasp of web performance profiling (Lighthouse, flamegraphs, memory leaks)",
+        "Experience building complex interactive interfaces, canvas editors, or graphing systems",
+        "Passion for crafting pixel-perfect, accessible, keyboard-first UIs"
+      ],
+      responsibilities: [
+        "Develop high-performance UI components for our real-time collaboration canvas",
+        "Collaborate with graphics engineers to integrate WebAssembly and WebGL renderers",
+        "Build automated unit and end-to-end integration test suites using Vitest and Playwright",
+        "Ship delight-focused micro-interactions and collaborative presence cursors"
+      ],
+      benefits: [
+        "Comprehensive health, dental, and vision insurance",
+        "Commuter transit subsidies and catered daily lunches",
+        "401(k) matching up to 5%",
+        "Generous annual education and conferences budget"
+      ],
+      applicantsCount: 2
+    },
+    {
+      id: "job-7",
+      title: "Performance Marketing Manager",
+      company: "Datadog Cloud",
+      companyLogo: "https://api.dicebear.com/7.x/identicon/svg?seed=DatadogCloud",
+      location: "Austin, TX",
+      workplaceType: "Hybrid",
+      jobType: "Full-time",
+      experienceLevel: "Mid Level",
+      category: "Marketing",
+      salaryMin: 120000,
+      salaryMax: 155000,
+      salaryCurrency: "USD",
+      featured: false,
+      postedDate: "2026-10-03T08:00:00.000Z",
+      status: "active",
+      employerId: "user-emp-2",
+      description: "We are looking for a Performance Marketing Manager to scale our acquisition channels across search, programmatic display, developer podcasts, and technical sponsorships.",
+      requirements: [
+        "3+ years managing paid acquisition budgets in B2B tech ($50k+/month)",
+        "Analytical mindset with hands-on proficiency in Google Ads, LinkedIn Ads, and attribution tools",
+        "Experience collaborating with designers and copywriters to produce high-converting assets",
+        "Understanding of the DevOps, software engineering, and cloud monitoring landscape"
+      ],
+      responsibilities: [
+        "Manage, test, and optimize multi-channel performance advertising campaigns",
+        "Analyze CAC, LTV, conversion rates, and channel ROI to allocate marketing spend",
+        "Partner with lifecycle marketing to ensure cohesive lead nurturing and sales handoffs",
+        "Deliver weekly analytical reporting dashboards to marketing leadership"
+      ],
+      benefits: [
+        "Comprehensive medical and dental coverage",
+        "Bonus incentives tied to revenue expansion",
+        "Employee stock purchase plan (ESPP) with discount",
+        "Hybrid work flexibility and ergonomic office support"
+      ],
+      applicantsCount: 0
+    },
+    {
+      id: "job-8",
+      title: "Junior Backend Developer (Node.js / Express)",
+      company: "NextGen Media",
+      companyLogo: "https://api.dicebear.com/7.x/identicon/svg?seed=NextGenMedia",
+      location: "Remote",
+      workplaceType: "Remote",
+      jobType: "Full-time",
+      experienceLevel: "Entry Level",
+      category: "Software Engineering",
+      salaryMin: 85000,
+      salaryMax: 110000,
+      salaryCurrency: "USD",
+      featured: false,
+      postedDate: "2026-10-08T15:45:00.000Z",
+      status: "active",
+      employerId: "user-emp-1",
+      description: "Are you early in your software development career and eager to learn fast? Join our supportive backend engineering squad building microservices, RESTful APIs, and cloud integrations for millions of digital readers.",
+      requirements: [
+        "1-2 years experience (or intense coding bootcamp / CS degree) with Node.js and JavaScript/TypeScript",
+        "Understanding of HTTP protocols, RESTful API principles, and SQL fundamentals",
+        "Familiarity with Git version control and modern code collaboration workflows",
+        "Strong eagerness to learn, ask thoughtful questions, and receive constructive feedback"
+      ],
+      responsibilities: [
+        "Implement clean API routes, controllers, and validation schemas under mentor guidance",
+        "Write automated unit tests to ensure high test coverage across core routes",
+        "Assist in maintaining database migrations and documentation",
+        "Participate actively in sprint planning, retrospectives, and pair programming sessions"
+      ],
+      benefits: [
+        "Dedicated senior engineer mentorship program with weekly 1-on-1s",
+        "Fully remote work setup with flexible hours",
+        "Health insurance and paid vacation days",
+        "$1,200 annual book, tutorial, and course allowance"
+      ],
+      applicantsCount: 2
+    },
+    {
+      id: "job-9",
+      title: "UI/UX Design Intern (Summer 2027)",
+      company: "Linear",
+      companyLogo: "https://api.dicebear.com/7.x/identicon/svg?seed=Linear",
+      location: "San Francisco, CA",
+      workplaceType: "Hybrid",
+      jobType: "Internship",
+      experienceLevel: "Entry Level",
+      category: "Design",
+      salaryMin: 55000,
+      salaryMax: 70000,
+      salaryCurrency: "USD",
+      featured: false,
+      postedDate: "2026-10-07T08:00:00.000Z",
+      status: "active",
+      employerId: "user-emp-2",
+      description: "We are seeking a talented Design Intern who loves crafting software tools for creators and engineers. You will learn how world-class software is designed, tested, and iterated.",
+      requirements: [
+        "Enrolled in or recent graduate of Design, Human-Computer Interaction, or related discipline",
+        "A portfolio showcasing 2+ UI/UX design case studies with your thought process and problem framing",
+        "Proficiency in Figma and interactive wireframing",
+        "Clear curiosity about interface ergonomics and visual minimalism"
+      ],
+      responsibilities: [
+        "Shadow staff designers on feature specs, user feedback synthesis, and icon design",
+        "Create responsive layouts, micro-copy, and illustration assets for product updates",
+        "Present your design explorations in weekly design critique sessions",
+        "Deliver a complete capstone feature design by the end of the internship"
+      ],
+      benefits: [
+        "Generous monthly intern compensation and housing stipend",
+        "Direct 1-on-1 mentorship with design leaders",
+        "Full equipment: MacBook Pro, external display, Figma Pro license",
+        "Potential for full-time conversion offer upon graduation"
+      ],
+      applicantsCount: 1
+    },
+    {
+      id: "job-10",
+      title: "Data Analyst & Business Intelligence",
+      company: "Stripe",
+      companyLogo: "https://api.dicebear.com/7.x/identicon/svg?seed=Stripe",
+      location: "Seattle, WA",
+      workplaceType: "Hybrid",
+      jobType: "Full-time",
+      experienceLevel: "Mid Level",
+      category: "Data Science",
+      salaryMin: 125000,
+      salaryMax: 160000,
+      salaryCurrency: "USD",
+      featured: false,
+      postedDate: "2026-10-06T18:00:00.000Z",
+      status: "active",
+      employerId: "user-emp-1",
+      description: "Translate multi-billion dollar transaction telemetry into actionable business insights. You will partner with business operations, finance, and engineering leaders to design executive dashboards and uncover growth levers.",
+      requirements: [
+        "3+ years performing analytical data modeling with SQL and Python/R",
+        "Expertise building production dashboards in Tableau, Looker, or PowerBI",
+        "Strong understanding of revenue cohorts, retention curves, and payment processing funnels",
+        "Exceptional communication skills with the ability to summarize complex trends for executives"
+      ],
+      responsibilities: [
+        "Maintain core data marts and ETL models in Snowflake / BigQuery",
+        "Build executive-level dashboards tracking merchant health, churn, and gross merchandise volume",
+        "Perform exploratory data analyses to detect payment failure root causes and conversion dips",
+        "Partner with data engineering to validate data warehouse schema integrity"
+      ],
+      benefits: [
+        "Top-tier compensation and equity grants",
+        "Comprehensive health, dental, and vision insurance",
+        "Annual wellness allowance and commuter benefits",
+        "401(k) retirement plan with employer match"
+      ],
+      applicantsCount: 0
+    }
+  ],
+  applications: [
+    {
+      id: "app-1",
+      jobId: "job-1",
+      candidateId: "user-cand-1",
+      candidateName: "Alex Morgan",
+      candidateEmail: "alex.morgan@example.com",
+      candidatePhone: "+1 (555) 382-9102",
+      candidateHeadline: "Senior Full Stack Engineer",
+      resumeFileName: "Alex_Morgan_Resume_2026.pdf",
+      resumeUrl: "https://example.com/resumes/alex-morgan.pdf",
+      coverNote: "I have spent over 6 years building high-throughput payment and SaaS platforms using Node.js, React, and TypeScript. Stripe has always been my benchmark for developer ergonomics, and I would love to contribute to the Payments Core team.",
+      portfolioUrl: "https://alexmorgan.dev",
+      status: "Interview",
+      appliedDate: "2026-10-07T11:20:00.000Z",
+      notes: "Impressive portfolio and strong distributed systems background. Scheduled initial technical screen for Tuesday."
+    },
+    {
+      id: "app-2",
+      jobId: "job-2",
+      candidateId: "user-cand-2",
+      candidateName: "Priya Sharma",
+      candidateEmail: "priya.sharma@example.com",
+      candidatePhone: "+1 (555) 749-2041",
+      candidateHeadline: "Lead Product Designer",
+      resumeFileName: "Priya_Sharma_Design_Portfolio.pdf",
+      resumeUrl: "https://example.com/resumes/priya-sharma.pdf",
+      coverNote: "Linear's focus on speed and craft aligns directly with my philosophy. I've led design systems at scale and built high-density desktop interfaces for complex developer tooling.",
+      portfolioUrl: "https://priyadesigns.io",
+      status: "Reviewing",
+      appliedDate: "2026-10-08T10:15:00.000Z",
+      notes: "Stunning Figma case studies and deep attention to keyboard interactions."
+    },
+    {
+      id: "app-3",
+      jobId: "job-6",
+      candidateId: "user-cand-1",
+      candidateName: "Alex Morgan",
+      candidateEmail: "alex.morgan@example.com",
+      candidatePhone: "+1 (555) 382-9102",
+      candidateHeadline: "Senior Full Stack Engineer",
+      resumeFileName: "Alex_Morgan_Resume_2026.pdf",
+      resumeUrl: "https://example.com/resumes/alex-morgan.pdf",
+      coverNote: "Experienced in high-performance React frontends and canvas rendering. Big fan of Figma's engineering excellence.",
+      portfolioUrl: "https://alexmorgan.dev",
+      status: "Applied",
+      appliedDate: "2026-10-08T16:00:00.000Z",
+      notes: ""
+    }
+  ],
+  bookmarks: [
+    {
+      id: "bm-1",
+      userId: "user-cand-1",
+      jobId: "job-2",
+      savedAt: "2026-10-07T12:00:00.000Z"
+    },
+    {
+      id: "bm-2",
+      userId: "user-cand-1",
+      jobId: "job-3",
+      savedAt: "2026-10-08T09:30:00.000Z"
+    }
+  ]
+};
+
+// Ensure data directory exists
+if (!fs.existsSync(DATA_DIR)) {
+  fs.mkdirSync(DATA_DIR, { recursive: true });
+}
+
+// Ensure db file exists
+if (!fs.existsSync(DB_FILE)) {
+  fs.writeFileSync(DB_FILE, JSON.stringify(initialData, null, 2), 'utf8');
+}
+
+export const db = {
+  get: () => {
+    try {
+      const content = fs.readFileSync(DB_FILE, 'utf8');
+      return JSON.parse(content);
+    } catch (err) {
+      console.error('Error reading DB, reinitializing:', err);
+      fs.writeFileSync(DB_FILE, JSON.stringify(initialData, null, 2), 'utf8');
+      return initialData;
+    }
+  },
+
+  save: (data) => {
+    fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), 'utf8');
+    return data;
+  },
+
+  reset: () => {
+    fs.writeFileSync(DB_FILE, JSON.stringify(initialData, null, 2), 'utf8');
+    return initialData;
+  }
+};
